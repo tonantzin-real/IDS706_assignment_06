@@ -9,9 +9,3 @@ COPY data/ /opt/airflow/data/
 
 RUN chown -R airflow:root /opt/airflow/data
 USER airflow
-
-# Added this
-USER root
-# Install required Python packages
-RUN pip install --no-cache-dir pandas matplotlib faker
-USER airflow

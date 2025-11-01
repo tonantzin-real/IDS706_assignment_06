@@ -172,12 +172,19 @@ with DAG(
         data = pd.read_sql(query, conn)
         conn.close()
 
-        grouped = data.groupby("customer_zip_code_prefix").agg({"order_id": "count"})
-
-        grouped.hist(bins=20, figsize=(10, 6))
-        plt.title("Orders per ZIP Code")
-        plt.xlabel("Number of Orders")
-        plt.ylabel("Frequency")
+        state_orders = data.groupby("customer_state").agg({"order_id": "count"})
+        state_orders = state_orders.rename(columns={"order_id": "num_orders"})
+        top_10_states = state_orders.sort_values(by="num_orders", ascending=False).head(
+            10
+        )
+        plt.figure(figsize=(12, 6))
+        plt.bar(top_10_states.index, top_10_states["num_orders"])
+        plt.title("Top 10 States by Number of Orders")
+        plt.xlabel("State")
+        plt.ylabel("Number of Orders")
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.show()
 
         plt.savefig(image_path, bbox_inches="tight")
         plt.close()
@@ -196,5 +203,4 @@ with DAG(
 
     clean_folder = clear_folder()
 
-    # load_to_database >> clean_folder
-    # load_to_database >> create_visualization >> clean_folder
+    load_to_database >> create_visualization >> clean_folder
